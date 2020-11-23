@@ -1,0 +1,2 @@
+
+-DCATKIN_DEVEL_PREFIX=/home/bacchus/git/project_course_es/devel -DCMAKE_INSTALL_PREFIX=/home/bacchus/git/project_course_es/install -G Unix Makefiles
