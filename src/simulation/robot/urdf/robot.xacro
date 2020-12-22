@@ -1,0 +1,255 @@
+<?xml version='1.0'?>
+
+<robot name="cart" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  # Vehicle with rigid suspension and front steering
+  # Consists of box chassis with 2 steerable and 2 non-steerable wheels
+  # SI units (length in meters)
+
+  <xacro:include filename="$(find robot)/urdf/robot.gazebo" />
+
+  # Geometry
+  <xacro:property name="PI" value="3.1415926535897931"/>
+  <xacro:property name="chassis_dx" value="1.0" />
+  <xacro:property name="chassis_dy" value="0.5" />
+  <xacro:property name="chassis_dz" value="0.1" />
+  <xacro:property name="wheel_radius" value="0.15" />
+  <xacro:property name="wheel_width" value="0.08" />
+  <xacro:property name="chassis_z0" value="${wheel_radius}" />
+  <xacro:property name="wheel_x0" value="${chassis_dx*0.5}" />
+  <xacro:property name="wheel_y0" value="${chassis_dy*0.5 + wheel_width*0.6}" />
+  <xacro:property name="steer_limit"  value="${35 * PI / 180.0}" />
+  <xacro:property name="caster_angle" value="${5 * PI / 180.0}" />
+
+  # inertia
+  <xacro:property name="chassis_mass" value="10.0" />
+  <xacro:property name="chassis_ixx" value="${chassis_mass/12.0 * (chassis_dy**2 + chassis_dz**2)}" />
+  <xacro:property name="chassis_iyy" value="${chassis_mass/12.0 * (chassis_dz**2 + chassis_dx**2)}" />
+  <xacro:property name="chassis_izz" value="${chassis_mass/12.0 * (chassis_dx**2 + chassis_dy**2)}" />
+
+  # chassis c.g. offset from center of box
+  <xacro:property name="chassis_cgx" value="${chassis_dx*0.1}" />
+  <xacro:property name="chassis_cgy" value="0" />
+  <xacro:property name="chassis_cgz" value="0" />
+  <xacro:property name="wheel_mass" value="0.5" />
+  <xacro:property name="wheel_ixx" value="${wheel_mass * (wheel_radius**2 / 4.0 + wheel_width**2 / 12.0)}" />
+  <xacro:property name="wheel_iyy" value="${wheel_mass * (wheel_radius**2 / 4.0 + wheel_width**2 / 12.0)}" />
+  <xacro:property name="wheel_izz" value="${wheel_mass/2.0 * wheel_radius**2}" />
+
+  <link name="base_link"></link>
+
+  <joint name="base_link_to_chassis" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis" />
+  </joint>
+
+  <link name='chassis'>
+    <inertial>
+      <mass value="${chassis_mass}"/>
+      <origin xyz="${chassis_cgx} ${chassis_cgy} ${chassis_cgz}" rpy=" 0 0 0"/>
+      <inertia
+          ixx="${chassis_ixx}" ixy="0" ixz="0"
+          iyy="${chassis_iyy}" iyz="0"
+          izz="${chassis_izz}"/>
+    </inertial>
+    <collision name='chassis_collision'>
+      <origin xyz="${chassis_cgx} ${chassis_cgy} ${chassis_cgz}" rpy=" 0 0 0"/>
+      <geometry>
+        <box size="${chassis_dx} ${chassis_dy} ${chassis_dz}"/>
+      </geometry>
+    </collision>
+    <visual name='chassis_visual'>
+      <origin xyz="${chassis_cgx} ${chassis_cgy} ${chassis_cgz}" rpy=" 0 0 0"/>
+      <geometry>
+        <box size="${chassis_dx} ${chassis_dy} ${chassis_dz}"/>
+      </geometry>
+    </visual>
+  </link>
+
+
+  <link name="front_left_wheel">
+    <collision name='front_left_wheel_collision'>
+      <origin xyz="${wheel_x0} ${wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </collision>
+    <visual name='front_left_wheel_visual'>
+      <origin xyz="${wheel_x0} ${wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="${wheel_x0} ${wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/>
+      <inertia
+          ixx="${wheel_ixx}" ixy="0" ixz="0"
+          iyy="${wheel_iyy}" iyz="0"
+          izz="${wheel_izz}"/>
+    </inertial>
+  </link>
+
+  <!-- <joint type="revolute" name="front_left_wheel_hinge">
+    <origin xyz="${wheel_x0} ${wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/>
+    <child link="front_left_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 -1 0" rpy="0 0 0"/>
+    <limit effort="10" lower="${-steer_limit}" upper="${steer_limit}" velocity="10"/>
+  </joint> -->
+
+
+  <joint name="front_left_wheel_spinner" type="continuous">
+    <child link="front_left_wheel"/>
+    <parent link="chassis"/>
+    <origin xyz="${wheel_x0} ${wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/>
+    <axis xyz="0 0 1" rpy="0 0 0"/>
+    <!-- dynamics damping="0.0" friction="0.0"/ -->
+  </joint>
+
+
+  <link name="front_right_wheel">
+    <collision name='front_right_wheel_collision'>
+      <origin xyz="${wheel_x0} ${-wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </collision>
+    <visual name='front_right_wheel_visual'>
+      <origin xyz="${wheel_x0} ${-wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="${wheel_x0} ${-wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/>
+      <inertia
+          ixx="${wheel_ixx}" ixy="0" ixz="0"
+          iyy="${wheel_iyy}" iyz="0"
+          izz="${wheel_izz}"/>
+    </inertial>
+  </link>
+
+  <!-- <joint type="revolute" name="front_right_wheel_hinge">
+    <origin xyz="${wheel_x0} ${-wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/>
+    <child link="front_right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 -1 0" rpy="0 0 0"/>
+    <limit effort="10" lower="${-steer_limit}" upper="${steer_limit}" velocity="10"/>
+  </joint> -->
+
+  <joint name="front_right_wheel_spinner" type="continuous">
+    <!-- <origin xyz="${wheel_x0} ${-wheel_y0} ${wheel_radius}" rpy="${-PI / 2} ${-caster_angle} 0"/> -->
+    <child link="front_right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 0 1" rpy="0 0 0"/>
+    <!--dynamics damping="0.0" friction="0.0"/-->
+  </joint>
+
+
+  <link name="rear_left_wheel">
+    <collision name='rear_left_wheel_collision'>
+      <origin xyz="${-wheel_x0} ${wheel_y0} ${wheel_radius}" rpy="${-PI / 2} 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </collision>
+    <visual name='rear_left_wheel_visual'>
+      <origin xyz="${-wheel_x0} ${wheel_y0} ${wheel_radius}" rpy="${-PI / 2} 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="${-wheel_x0} ${wheel_y0} ${wheel_radius}" rpy="${-PI / 2} 0 0"/>
+      <inertia
+          ixx="${wheel_ixx}" ixy="0" ixz="0"
+          iyy="${wheel_iyy}" iyz="0"
+          izz="${wheel_izz}"/>
+    </inertial>
+  </link>
+
+  <joint name="rear_left_wheel_spinner" type="continuous">
+    <!-- <origin xyz="${-wheel_x0} ${wheel_y0} ${wheel_radius}" rpy="${-PI / 2} 0 0"/> -->
+    <child link="rear_left_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 0 1" rpy="0 0 0"/>
+    <!--limit effort="1000" velocity="1000"/>
+    <dynamics damping="0.0" friction="0.0"/-->
+  </joint>
+
+
+  <link name="rear_right_wheel">
+    <collision name='rear_right_wheel_collision'>
+      <origin xyz="${-wheel_x0} ${-wheel_y0} ${wheel_radius}" rpy="${-PI / 2} 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </collision>
+    <visual name='rear_right_wheel_visual'>
+      <origin xyz="${-wheel_x0} ${-wheel_y0} ${wheel_radius}" rpy="${-PI / 2} 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="${wheel_mass}"/>
+      <origin xyz="${-wheel_x0} ${-wheel_y0} ${wheel_radius}" rpy="${-PI / 2} 0 0"/>
+      <inertia
+          ixx="${wheel_ixx}" ixy="0" ixz="0"
+          iyy="${wheel_iyy}" iyz="0"
+          izz="${wheel_izz}"/>
+    </inertial>
+  </link>
+
+  <joint name="rear_right_wheel_spinner" type="continuous">
+    <origin xyz="${-wheel_x0} ${-wheel_y0} ${wheel_radius}" rpy="${-PI / 2} 0 0"/>
+    <child link="rear_right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 0 1" rpy="0 0 0"/>
+    <!--limit effort="1000" velocity="1000"/>
+    <dynamics damping="0.0" friction="0.0"/-->
+  </joint>
+
+
+  <transmission name="tran1">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rear_left_wheel_spinner">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="tran2">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rear_right_wheel_spinner">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor2">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <gazebo reference="front_left_wheel">
+      <material>Gazebo/Black</material>
+  </gazebo>
+  <gazebo reference="front_right_wheel">
+      <material>Gazebo/Black</material>
+  </gazebo>
+  <gazebo reference="rear_left_wheel">
+      <material>Gazebo/Black</material>
+  </gazebo>
+  <gazebo reference="rear_right_wheel">
+      <material>Gazebo/Black</material>
+  </gazebo>
+  <gazebo reference="chassis">
+      <material>Gazebo/Grey</material>
+  </gazebo>
+
+</robot>

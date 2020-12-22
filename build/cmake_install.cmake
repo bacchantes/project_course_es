@@ -131,6 +131,8 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/bacchus/git/project_course_es/build/gtest/cmake_install.cmake")
+  include("/home/bacchus/git/project_course_es/build/simulation/gazebo_sim/cmake_install.cmake")
+  include("/home/bacchus/git/project_course_es/build/simulation/robot/cmake_install.cmake")
 
 endif()
 

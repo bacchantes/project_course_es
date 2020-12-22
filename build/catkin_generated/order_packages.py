@@ -2,4 +2,4 @@
 source_root_dir = '/home/bacchus/git/project_course_es/src'
 whitelisted_packages = ''.split(';') if '' != '' else []
 blacklisted_packages = ''.split(';') if '' != '' else []
-underlay_workspaces = '/opt/ros/melodic'.split(';') if '/opt/ros/melodic' != '' else []
+underlay_workspaces = '/home/bacchus/git/project_course_es/devel;/opt/ros/melodic'.split(';') if '/home/bacchus/git/project_course_es/devel;/opt/ros/melodic' != '' else []

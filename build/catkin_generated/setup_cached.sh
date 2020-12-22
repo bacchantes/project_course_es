@@ -7,7 +7,6 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/bacchus/git/project_course_es/devel:$CMAKE_PREFIX_PATH"
+export LD_LIBRARY_PATH='/opt/ros/melodic/lib'
+export PKG_CONFIG_PATH='/opt/ros/melodic/lib/pkgconfig'
 export PWD='/home/bacchus/git/project_course_es/build'
-export ROSLISP_PACKAGE_DIRECTORIES='/home/bacchus/git/project_course_es/devel/share/common-lisp'
-export ROS_PACKAGE_PATH="/home/bacchus/git/project_course_es/src:$ROS_PACKAGE_PATH"
