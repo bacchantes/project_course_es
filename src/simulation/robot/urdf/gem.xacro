@@ -95,6 +95,16 @@
     <limit effort="0" velocity="0"/>
     <dynamics damping="0.0" friction="0.0"/>
   </joint>
+  <transmission name="trans_${lr}_rotate">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="${lr}_rotate">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_${lr}_rotate">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
 
 </xacro:macro>
 
@@ -185,5 +195,13 @@
 		</plugin>
 	</gazebo>
 
+  <gazebo>
+    <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+      <frameName>map</frameName>
+      <bodyName>base_link</bodyName>
+      <topicName>odom</topicName>
+      <updateRate>30.0</updateRate>
+    </plugin>
+  </gazebo>
 
 </robot>

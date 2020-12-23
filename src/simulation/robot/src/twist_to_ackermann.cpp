@@ -19,9 +19,11 @@ class TwistToAackermann {
         pubRightWheelHinge_ = n_.advertise<std_msgs::Float64>("/cart/joint_rwh_position_controller/command", 1);
         pubLeftWheelRotate_ = n_.advertise<std_msgs::Float64>("/cart/joint_lw_velocity_controller/command", 1);
         pubRightWheelRotate_ = n_.advertise<std_msgs::Float64>("/cart/joint_rw_velocity_controller/command", 1);
+        pubLeftBackWheelRotate_ = n_.advertise<std_msgs::Float64>("/cart/joint_lbw_velocity_controller/command", 1);
+        pubRightBackWheelRotate_ = n_.advertise<std_msgs::Float64>("/cart/joint_rbw_velocity_controller/command", 1);
 
         //Topic you want to subscribe
-        sub_ = n_.subscribe("/twist_to_ackermann", 1, &TwistToAackermann::callback, this);
+        sub_ = n_.subscribe("/cmd_vel", 1, &TwistToAackermann::callback, this);
         }
 
         void callback(const geometry_msgs::Twist& msg) {
@@ -35,6 +37,8 @@ class TwistToAackermann {
             std_msgs::Float64 rwh;
             std_msgs::Float64 lwr;
             std_msgs::Float64 rwr;
+            std_msgs::Float64 lbwr;
+            std_msgs::Float64 rbwr;
             double r = 0;
 
 
@@ -43,6 +47,8 @@ class TwistToAackermann {
                 rwh.data = 0;
                 lwr.data = linearToAngularVelocity(msg.linear.x, wheelRadius);
                 rwr.data = linearToAngularVelocity(msg.linear.x, wheelRadius);
+                lbwr.data = linearToAngularVelocity(msg.linear.x, wheelRadius);
+                rbwr.data = linearToAngularVelocity(msg.linear.x, wheelRadius);
             }
             else {
                 // The radius of the turn.
@@ -53,8 +59,10 @@ class TwistToAackermann {
 
                 lwh.data = atan(wheelBase/(r+(track/2)));
                 rwh.data = atan(wheelBase/(r+(track/2)));
-                lwr.data = linearToAngularVelocity((r+(track/2))*msg.angular.z,wheelRadius);
-                rwr.data = linearToAngularVelocity((r+(track/2))*msg.angular.z,wheelRadius);             }
+                lwr.data = linearToAngularVelocity((r-(track/2))*msg.angular.z,wheelRadius);
+                rwr.data = linearToAngularVelocity((r+(track/2))*msg.angular.z,wheelRadius);
+                lbwr.data = linearToAngularVelocity((r-(track/2))*msg.angular.z,wheelRadius);
+                rbwr.data = linearToAngularVelocity((r+(track/2))*msg.angular.z,wheelRadius);    }
 
             //double R = static_cast<double>(msg.linear.x/msg.angular.z);
             ROS_DEBUG("Test");
@@ -64,6 +72,8 @@ class TwistToAackermann {
             pubRightWheelHinge_.publish(rwh);
             pubLeftWheelRotate_.publish(lwr);
             pubRightWheelRotate_.publish(rwr);
+            pubLeftBackWheelRotate_.publish(lbwr);
+            pubRightBackWheelRotate_.publish(rbwr);
         }
     private:
         ros::NodeHandle n_;
@@ -71,6 +81,8 @@ class TwistToAackermann {
         ros::Publisher pubRightWheelHinge_;
         ros::Publisher pubLeftWheelRotate_;
         ros::Publisher pubRightWheelRotate_;
+        ros::Publisher pubLeftBackWheelRotate_;
+        ros::Publisher pubRightBackWheelRotate_;
         ros::Subscriber sub_;
 
     /*

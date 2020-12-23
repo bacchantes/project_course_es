@@ -7,7 +7,7 @@
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
   output="screen" ns="/cart"
   args="joint_rwh_position_controller joint_lwh_position_controller
-    joint_state_controller joint_rw_velocity_controller joint_lw_velocity_controller"/>
+    joint_state_controller joint_rw_velocity_controller joint_lw_velocity_controller joint_rbw_velocity_controller joint_lbw_velocity_controller"/>
 
 
   <node name="twist_to_ackermann" pkg="robot" type="twist_to_ackermann" >
