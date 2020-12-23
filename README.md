@@ -17,10 +17,7 @@ catkin_make
 3. Install dependencies with rosdep:
 
 ```bash
-rosdep install navigation
-rosdep install gazebo_sim
-rosdep install robot
-rosdep install teb_local_planner
+rosdep install navigation gazebo_sim robot teb_local_planner
 ```
 
 4. Source the project: (change pathtofile)
