@@ -2,19 +2,19 @@
 
 ## Install
 
-Install dependencies before building
+1. Install dependencies before building
 
 ```bash
 sudo apt-get install ros-melodic-gazebo-ros-pkgs ros-melodic-gazebo-ros-control
 ```
 
-Catkin Package, in the main directory run:
+2. Build Catkin Package, in the main directory run:
 
 ```bash
 catkin_make
 ```
 
-Install dependencies with rosdep:
+3. Install dependencies with rosdep:
 
 ```bash
 rosdep install navigation
@@ -23,10 +23,16 @@ rosdep install robot
 rosdep install teb_local_planner
 ```
 
-## Run
-
-Source the project: (change pathtofile)
+4. Source the project: (change pathtofile)
 
 ```bash
 source /pathtofile/project_course_es/devel/setup.bash
+```
+
+## Run
+
+Launch the simulation:
+
+```bash
+roslaunch gazebo_sim sim.launch
 ```
